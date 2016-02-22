@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import NotificationsContainer from './NotificationsContainer';
 import MenuItem from '../components/MenuItem';
 import * as authActions from '../actions/auth';
+import * as menuActions from '../actions/menu';
 
 
 class Menu extends Component {
@@ -12,12 +13,27 @@ class Menu extends Component {
     super(props);
   }
 
+  componentWillMount(){
+    const { registerListeners, auth } = this.props;
+    if (auth.authenticated){
+      registerListeners(auth.id);
+    }
+  }
+
+  componentWillReceiveProps(nextProps){
+    const { registerListeners, unregisterListeners, auth } = this.props;
+    if (nextProps.auth.id !== auth.id){
+      unregisterListeners(auth.id);
+      registerListeners(nextProps.auth.id);
+    }
+  }
+
   handleSignOutClick() {
     this.props.signOut();
   }
 
   render() {
-    const { auth } = this.props;
+    const { auth, user } = this.props;
     return (
       <nav className="navbar navbar-default">
         <div className="container-fluid">
@@ -28,17 +44,29 @@ class Menu extends Component {
               <span className="icon-bar"></span>
               <span className="icon-bar"></span>
             </button>
-            <Link className="navbar-brand" to="/">Poll App</Link>
+            <Link className="navbar-brand" to="/">Polls App</Link>
           </div>
           <div id="navbar" className="navbar-collapse collapse">
             <ul className="nav navbar-nav">
-              { auth.authenticated ? <MenuItem href="/poll" { ...this.props }>My Polls</MenuItem> : null }
               <MenuItem href="/vote" { ...this.props }>Vote</MenuItem>
             </ul>
             <ul className="nav navbar-nav navbar-right">
               <NotificationsContainer { ...this.props } />
-              { auth.authenticated ?
-                <li className="navbar-btn"><button className="btn" type="button" onClick={ () => this.handleSignOutClick() }>Sign Out</button></li> :
+              {
+                auth.authenticated ?
+                <li className="navbar-btn dropdown">
+                  <button style={{ borderRadius: '15px' }} type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <img style={{width: '25px', height: '25px'}} src={ user.picture ? user.picture : 'img/user.png' } alt=""/>
+                    <span className="caret"></span>
+                  </button>
+                  <ul className="dropdown-menu">
+                    <MenuItem href="/poll" { ...this.props }>My Polls</MenuItem>
+                    <MenuItem href="/settings" { ...this.props }>Settings</MenuItem>
+                    <li role="separator" className="divider"></li>
+                    <li><a href="#" onClick={ (e) =>{e.preventDefault(); this.handleSignOutClick(); }  }>Sign Out</a></li>
+                  </ul>
+                </li>
+                 :
                 <MenuItem href="/sign-in" { ...this.props }>Sign In</MenuItem>
               }
             </ul>
@@ -51,16 +79,20 @@ class Menu extends Component {
 
 Menu.propTypes = {
   auth: PropTypes.object.isRequired,
-  signOut: PropTypes.func.isRequired
+  signOut: PropTypes.func.isRequired,
+  registerListeners: PropTypes.func,
+  unregisterListeners: PropTypes.func,
+  user: PropTypes.object.isRequired
 };
 
 function mapStateToProps(state) {
   return {
     active: state.menu.active,
-    auth: state.auth
+    auth: state.auth,
+    user: state.user
   };
 }
 
 export default connect(
-  mapStateToProps, authActions
+  mapStateToProps, Object.assign({}, authActions, menuActions)
 )(Menu);

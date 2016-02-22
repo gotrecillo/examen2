@@ -12,7 +12,7 @@ export function pollSearch(startAt) {
    const ref = firebase.child('polls');
    ref.orderByChild('title').startAt(startAt).endAt(`${startAt}\uf8ff`).once('value', snapshot => dispatch({
      type: SET_POLL_SEARCH,
-     polls: Object.keys(snapshot.val() || []).map( id => ({id, title:snapshot.val()[id].title}) )
+     polls: Object.keys(snapshot.val() || []).map( id => ({id, title:snapshot.val()[id].title, state:snapshot.val()[id].state})).filter(poll => poll.state !== 'locked')
    }));
   };
 }

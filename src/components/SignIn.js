@@ -26,7 +26,7 @@ export default class SignIn extends Component {
           <ModalClose onClick={() => this.handleCancelClick()}/>
           <h4 className="modal-title">Sign in Dialog</h4>
         </div>
-        <div className="modal-body">
+        <div className="modal-body" style={{display:"flex", flexFlow:"row", justifyContent:"space-around"}}>
           { Object.keys(tokens).map( user => <button key={ user } className="btn" type="button" onClick={ () => this.handleSignIn(user)}>{ user }</button> ) }
         </div>
       </Modal>

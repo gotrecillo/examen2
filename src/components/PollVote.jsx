@@ -64,7 +64,7 @@ export default class PollVote extends Component {
                   Object.keys(entries).map( (id, index) =>
                     <li className="list-group-item" key={index}>
                       { entries[id].title }
-                      <span onClick={ () => this.handleVoteClick(poll.id, id) } className="action-element glyphicon glyphicon-arrow-up"/>
+                      { poll.state !== 'closed' ? <span onClick={ () => this.handleVoteClick(poll.id, id) } className="action-element glyphicon glyphicon-arrow-up"/> : null }
                       <br/>
                       { this.createProgressBar(entries[id], total, index) }
                     </li>

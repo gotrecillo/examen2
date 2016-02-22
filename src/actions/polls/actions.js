@@ -15,7 +15,7 @@ export function addPoll(title) {
   return (dispatch, getState) => {
     const { firebase, auth } = getState();
     const newPollRef = firebase.child('polls')
-      .push({ title, createdAt: Firebase.ServerValue.TIMESTAMP }, error => {
+      .push({ title, createdAt: Firebase.ServerValue.TIMESTAMP, state: 'locked' }, error => {
         if (error) {
           console.error('ERROR @ addPoll :', error); // eslint-disable-line no-console
           dispatch({
@@ -25,7 +25,44 @@ export function addPoll(title) {
       } else {
         const pollId = newPollRef.key();
         const userId = auth.id;
-        firebase.child(`myPolls/${userId}/${pollId}`).set({ createdAt: Firebase.ServerValue.TIMESTAMP });
+        firebase.child(`myPolls/${userId}/${pollId}`).set({ state: 'locked' });
+      }
+    });
+  };
+}
+
+
+export function unlockPoll(idPoll) {
+  return (dispatch, getState) => {
+    const { firebase, auth } = getState();
+    firebase.child(`polls/${idPoll}/state`).set('unlocked', error => {
+        if (error) {
+          console.error('ERROR @ unlockPoll :', error); // eslint-disable-line no-console
+          dispatch({
+            type: ADD_POLL_ERROR,
+            payload: error,
+        });
+      } else {
+        const userId = auth.id;
+        firebase.child(`myPolls/${userId}/${idPoll}`).set({ state: 'unlocked' });
+      }
+    });
+  };
+}
+
+export function closePoll(idPoll) {
+  return (dispatch, getState) => {
+    const { firebase, auth } = getState();
+    firebase.child(`polls/${idPoll}/state`).set('closed', error => {
+        if (error) {
+          console.error('ERROR @ unlockPoll :', error); // eslint-disable-line no-console
+          dispatch({
+            type: ADD_POLL_ERROR,
+            payload: error,
+        });
+      } else {
+        const userId = auth.id;
+        firebase.child(`myPolls/${userId}/${idPoll}`).set({ state: 'closed' });
       }
     });
   };

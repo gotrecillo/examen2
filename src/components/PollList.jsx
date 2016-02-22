@@ -61,14 +61,14 @@ export default class PollList extends Component {
 
   render() {
 
-    const { polls, removePoll } = this.props;
+    const { polls, removePoll, closePoll, unlockPoll } = this.props;
 
     const contents = this.state.loading ?
       <Spinner /> :
       (
         <ul className="list-group">
             {
-              polls.map( (poll, index) =>  <PollItem key={index} poll={poll} onRemovePoll={removePoll} /> )
+              polls.map( (poll, index) =>  <PollItem key={index} poll={poll} onRemovePoll={removePoll} closePoll={closePoll} unlockPoll={unlockPoll} /> )
             }
          </ul>
       );
@@ -93,6 +93,8 @@ PollList.propTypes = {
   polls: PropTypes.array,
   addPoll: PropTypes.func.isRequired,
   removePoll: PropTypes.func.isRequired,
+  unlockPoll: PropTypes.func.isRequired,
+  closePoll: PropTypes.func.isRequired,
   registerListeners: PropTypes.func.isRequired,
   unregisterListeners: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired
